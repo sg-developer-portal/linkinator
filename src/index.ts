@@ -9,7 +9,8 @@ import {Queue} from './queue';
 import {getLinks} from './links';
 import {startWebServer} from './server';
 import {CheckOptions, InternalCheckOptions, processOptions} from './options';
-
+// import {Format, Logger} from './logger';
+// const logger = new Logger(0, Format.TEXT);
 export {CheckOptions};
 
 export enum LinkState {
@@ -48,8 +49,11 @@ interface CrawlOptions {
   queue: Queue;
   rootPath: string;
   retry: boolean;
+  retryConfig?: {
+    retry?: number;
+    retryDelay?: number;
+  };
 }
-
 // Spoof a normal looking User-Agent to keep the servers happy
 export const headers = {
   'User-Agent':
@@ -73,6 +77,7 @@ export class LinkChecker extends EventEmitter {
    */
   async check(opts: CheckOptions) {
     const options = await processOptions(opts);
+    // logger.error(JSON.stringify(options));
     if (!Array.isArray(options.path)) {
       options.path = [options.path];
     }
@@ -107,6 +112,8 @@ export class LinkChecker extends EventEmitter {
     const results = new Array<LinkResult>();
     const initCache: Set<string> = new Set();
     const delayCache: Map<string, number> = new Map();
+    const retryCount: number = options.retryCount || 0; // override gaxios default. no retries by default
+    const retryDelay: number | undefined = options.retryDelay || 100; // default as gaxios defaults
 
     for (const path of options.path) {
       const url = new URL(path);
@@ -122,6 +129,10 @@ export class LinkChecker extends EventEmitter {
           queue,
           rootPath: path,
           retry: !!opts.retry,
+          retryConfig: {
+            retry: retryCount,
+            retryDelay,
+          },
         });
       });
     }
@@ -231,6 +242,7 @@ export class LinkChecker extends EventEmitter {
         method: opts.crawl ? 'GET' : 'HEAD',
         url: opts.url.href,
         headers,
+        retryConfig: opts.retryConfig,
         responseType: opts.crawl ? 'text' : 'stream',
         validateStatus: () => true,
         timeout: opts.checkOptions.timeout,
@@ -245,6 +257,7 @@ export class LinkChecker extends EventEmitter {
           method: 'GET',
           url: opts.url.href,
           headers,
+          retryConfig: opts.retryConfig,
           responseType: 'stream',
           validateStatus: () => true,
           timeout: opts.checkOptions.timeout,
@@ -269,6 +282,7 @@ export class LinkChecker extends EventEmitter {
         res = await request<string>({
           method: 'GET',
           url: opts.url.href,
+          retryConfig: opts.retryConfig,
           responseType: 'text',
           validateStatus: () => true,
           headers,
@@ -354,6 +368,7 @@ export class LinkChecker extends EventEmitter {
               parent: opts.url.href,
               rootPath: opts.rootPath,
               retry: opts.retry,
+              retryConfig: opts.retryConfig,
             });
           });
         }

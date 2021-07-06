@@ -102,6 +102,8 @@ const cli = meow(
       verbosity: {type: 'string'},
       directoryListing: {type: 'boolean'},
       retry: {type: 'boolean'},
+      retryCount: {type: 'number'},
+      retryDelay: {type: 'number'},
       urlRewriteSearch: {type: 'string'},
       urlReWriteReplace: {type: 'string'},
     },
@@ -163,6 +165,8 @@ async function main() {
     serverRoot: flags.serverRoot,
     directoryListing: flags.directoryListing,
     retry: flags.retry,
+    retryCount: Number(flags.retryCount),
+    retryDelay: Number(flags.retryDelay),
   };
   if (flags.skip) {
     if (typeof flags.skip === 'string') {

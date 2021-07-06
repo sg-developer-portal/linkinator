@@ -16,6 +16,8 @@ export interface Flags {
   serverRoot?: string;
   directoryListing?: boolean;
   retry?: boolean;
+  retryCount?: number;
+  retryDelay?: number;
   urlRewriteSearch?: string;
   urlRewriteReplace?: string;
 }

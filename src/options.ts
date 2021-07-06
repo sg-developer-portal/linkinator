@@ -22,6 +22,8 @@ export interface CheckOptions {
   serverRoot?: string;
   directoryListing?: boolean;
   retry?: boolean;
+  retryCount?: number;
+  retryDelay?: number;
   urlRewriteExpressions?: UrlRewriteExpression[];
 }
 
