@@ -9,8 +9,6 @@ import {Queue} from './queue';
 import {getLinks} from './links';
 import {startWebServer} from './server';
 import {CheckOptions, InternalCheckOptions, processOptions} from './options';
-// import {Format, Logger} from './logger';
-// const logger = new Logger(0, Format.TEXT);
 export {CheckOptions};
 
 export enum LinkState {
@@ -77,7 +75,6 @@ export class LinkChecker extends EventEmitter {
    */
   async check(opts: CheckOptions) {
     const options = await processOptions(opts);
-    // logger.error(JSON.stringify(options));
     if (!Array.isArray(options.path)) {
       options.path = [options.path];
     }
